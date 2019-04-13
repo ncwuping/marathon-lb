@@ -43,6 +43,7 @@ RUN set -x \
  && mkdir -p /marathon-lb \
  && tar zxf marathon-lb-1.12.3.tar.gz --directory /marathon-lb --strip-components=1 \
  && rm -f marathon-lb-1.12.3.tar.gz \
+ && rm -rf /marathon-lb/{.coveragerc,.dockerignore,.gitignore,Dockerfile,build.bash,hooks,requirements-dev.txt,scripts,tests} \
  && buildEss=' \
      apr \
      apr-util \
@@ -206,6 +207,8 @@ RUN set -x \
  && yum -y remove $buildEss \
 # Purge of python3-dev will delete python3 also
  && yum -y install python36 sysvinit-tools
+
+COPY run /marathon-lb/
 
 WORKDIR /marathon-lb
 
