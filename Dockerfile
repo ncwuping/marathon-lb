@@ -4,13 +4,15 @@ MAINTAINER Wu Ping <wuping@hotmail.com>
 
 LABEL LAST_MODIFIED=20190415
 
+COPY curl-7.61.1-1.0.cf.rhel7.x86_64.rpm /tmp/
+COPY libcurl-7.61.1-1.0.cf.rhel7.x86_64.rpm /tmp/
+COPY libcurl-devel-7.61.1-1.0.cf.rhel7.x86_64.rpm /tmp/
+
 # runtime dependencies
-RUN yum -y install \
-           epel-release \
+RUN yum clean all -y && yum makecache fast && yum update -y \
  && yum -y install \
-           libnghttp2 \
-           http://www.city-fan.org/ftp/contrib/yum-repo/rhel7/x86_64/city-fan.org-release-2-1.rhel7.noarch.rpm \
- && yum -y update --enablerepo=city-fan.org \
+           epel-release \
+ && yum -y localinstall /tmp/curl-7.61.1-1.0.cf.rhel7.x86_64.rpm /tmp/libcurl-7.61.1-1.0.cf.rhel7.x86_64.rpm \
  && yum -y install \
            openssl \
            which \
@@ -36,14 +38,18 @@ RUN set -x \
 
 ENV HAPROXY_MAJOR=1.8 \
     HAPROXY_VERSION=1.8.19 \
-    HAPROXY_MD5=713d995d8b072a4ca8561ab389b82b7a
+    HAPROXY_MD5=713d995d8b072a4ca8561ab389b82b7a \
+    MARATHON_LB_VERSION=1.12.3 \
+    RUN_IT_VERSION=2.1.2 \
+    LUA_MAJOR=5.3 \
+    LUA_VERSION=5.3.5
 
 RUN set -x \
- && curl -k -L -R -o marathon-lb-1.12.3.tar.gz https://github.com/mesosphere/marathon-lb/archive/v1.12.3.tar.gz \
- && mkdir -p /marathon-lb \
- && tar zxf marathon-lb-1.12.3.tar.gz --directory /marathon-lb --strip-components=1 \
- && rm -f marathon-lb-1.12.3.tar.gz \
- && rm -rf /marathon-lb/{.coveragerc,.dockerignore,.gitignore,Dockerfile,build.bash,hooks,requirements-dev.txt,scripts,tests} \
+ && curl -k -L -R -o marathon-lb-$MARATHON_LB_VERSION.tar.gz https://github.com/mesosphere/marathon-lb/archive/v$MARATHON_LB_VERSION.tar.gz \
+ && tar zxf marathon-lb-$MARATHON_LB_VERSION.tar.gz \
+ && rm -f marathon-lb-$MARATHON_LB_VERSION.tar.gz \
+ && mv -f marathon-lb-$MARATHON_LB_VERSION marathon-lb \
+ && rm -rf marathon-lb/{.coveragerc,.dockerignore,.gitignore,Dockerfile,build.bash,hooks,requirements-dev.txt,scripts,tests} \
  && buildEss=' \
      apr \
      apr-util \
@@ -110,7 +116,6 @@ RUN set -x \
      keyutils-libs-devel \
      krb5-devel \
      libcom_err-devel \
-     libcurl-devel \
      libkadm5 \
      libselinux-devel \
      libsepol-devel \
@@ -119,40 +124,42 @@ RUN set -x \
      openssl-devel \
      pcre-devel \
      pcre-static \
+     python-rpm-macros \
+     python-srpm-macros \
+     python3-rpm-macros \
      python36 \
      python36-setuptools \
      python36-libs \
      python36-devel \
-     python-rpm-macros \
-     python-srpm-macros \
      readline-devel \
      zlib-devel \
  ' \
  && yum groups mark convert \
  && yum -y groupinstall "Development Tools" \
  && yum -y install $buildDeps \
+ && yum -y localinstall /tmp/libcurl-devel-7.61.1-1.0.cf.rhel7.x86_64.rpm \
  && yum clean all \
  && rm -rf /tmp/* \
- && curl -L -R -O http://smarden.org/runit/runit-2.1.2.tar.gz \
- && tar zxf runit-2.1.2.tar.gz -C /usr/src --strip-components=1 \
- && rm -rf runit-2.1.2.tar.gz \
- && cd /usr/src/runit-2.1.2 \
+ && curl -L -R -O http://smarden.org/runit/runit-$RUN_IT_VERSION.tar.gz \
+ && tar zxf runit-$RUN_IT_VERSION.tar.gz -C /usr/src --strip-components=1 \
+ && rm -rf runit-$RUN_IT_VERSION.tar.gz \
+ && cd /usr/src/runit-$RUN_IT_VERSION \
  && package/install \
  && cd - \
- && curl -L -R -O http://www.lua.org/ftp/lua-5.3.5.tar.gz \
- && tar zxf lua-5.3.5.tar.gz -C /usr/src \
- && rm -f lua-5.3.5.tar.gz \
+ && curl -L -R -O http://www.lua.org/ftp/lua-$LUA_VERSION.tar.gz \
+ && tar zxf lua-$LUA_VERSION.tar.gz -C /usr/src \
+ && rm -f lua-$LUA_VERSION.tar.gz \
  && sed -e 's!^INSTALL_TOP=\(.*\)!INSTALL_TOP=/usr!g' \
         -e 's!^INSTALL_INC=\(.*\)!INSTALL_INC=\1/lua5.3!g' \
         -e 's!^INSTALL_LIB=\(.*/lib\)!INSTALL_LIB=\164!g' \
         -e 's!^INSTALL_MAN=\(.*\)\(/man/man1\)!INSTALL_MAN=\1/doc\2!g' \
         -e 's!^INSTALL_CMOD=\(.*/lib\)!INSTALL_CMOD=\164!g' \
         -e 's!^TO_LIB=\(.*\)!TO_LIB=\1 liblua.so!g' \
-        -i /usr/src/lua-5.3.5/Makefile \
+        -i /usr/src/lua-$LUA_VERSION/Makefile \
  && sed -e 's!^CFLAGS=\(.*\)!CFLAGS=\1 -fPIC!g' \
         -e '/^LUA_A=/a\LUA_SO= liblua.so' \
         -e 's!^ALL_T=\(.*\)!ALL_T=\1 $(LUA_SO)!g' \
-        -i /usr/src/lua-5.3.5/src/Makefile \
+        -i /usr/src/lua-$LUA_VERSION/src/Makefile \
  && { \
       echo '#!/usr/bin/env bash'; \
       echo ''; \
@@ -162,8 +169,8 @@ RUN set -x \
  && chmod +x /tmp/chgluamak.sh \
  && /tmp/chgluamak.sh \
  && rm -f /tmp/chgluamak.sh \
- && make linux -C /usr/src/lua-5.3.5 \
- && make install -C /usr/src/lua-5.3.5 \
+ && make linux -C /usr/src/lua-$LUA_VERSION \
+ && make install -C /usr/src/lua-$LUA_VERSION \
  \
 # Build HAProxy
  && curl -k -L -R -o haproxy.tar.gz "https://www.haproxy.org/download/$HAPROXY_MAJOR/src/haproxy-$HAPROXY_VERSION.tar.gz" \
@@ -197,11 +204,11 @@ RUN set -x \
  && export PYCURL_SSL_LIBRARY=openssl \
  && pip3 install --no-cache --upgrade --force-reinstall -r /marathon-lb/requirements.txt \
  \
- && make uninstall -C /usr/src/lua-5.3.5 \
- && cp -f /usr/src/lua-5.3.5/src/liblua.so /usr/lib64/ \
- && make clean -C /usr/src/lua-5.3.5 \
- && rm -rf /usr/src/lua-5.3.5 \
- && yum -y remove libssh2-devel \
+ && make uninstall -C /usr/src/lua-$LUA_VERSION \
+ && cp -f /usr/src/lua-$LUA_VERSION/src/liblua.so /usr/lib64/ \
+ && make clean -C /usr/src/lua-$LUA_VERSION \
+ && rm -rf /usr/src/lua-$LUA_VERSION \
+ && yum -y remove libssh2-devel libcurl-devel \
  && yum -y remove $buildDeps \
  && yum -y groupremove "Development Tools" \
  && yum -y remove $buildEss \
