@@ -27,7 +27,7 @@ fi
 
 while IFS='=' read -r envvar_key envvar_value
 do
-    if [[ "${envvar_key}" =~ ^HAPROXY_HEAD_LB_[[:digit:]]+= ]]; then
+    if [[ "${envvar_key}" =~ ^HAPROXY_HEAD_LB_[[:digit:]]+$ ]]; then
         if [[ ! -z ${envvar_value} ]]; then
             HAPROXY_HEAD_LBS="${HAPROXY_HEAD_LBS:-}${envvar_value}"
         fi
