@@ -4,15 +4,13 @@ MAINTAINER Wu Ping <wuping@hotmail.com>
 
 LABEL LAST_MODIFIED=20190415
 
-COPY curl-7.61.1-1.0.cf.rhel7.x86_64.rpm /tmp/
-COPY libcurl-7.61.1-1.0.cf.rhel7.x86_64.rpm /tmp/
-COPY libcurl-devel-7.61.1-1.0.cf.rhel7.x86_64.rpm /tmp/
-
 # runtime dependencies
-RUN yum clean all -y && yum makecache fast && yum update -y \
+RUN yum -y clean all && yum makecache fast && yum -y update \
  && yum -y install \
            epel-release \
- && yum -y localinstall /tmp/curl-7.61.1-1.0.cf.rhel7.x86_64.rpm /tmp/libcurl-7.61.1-1.0.cf.rhel7.x86_64.rpm \
+ && yum -y update \
+           https://github.com/ncwuping/marathon-lb/raw/master/curl/curl-7.61.1-1.0.cf.rhel7.x86_64.rpm \
+           https://github.com/ncwuping/marathon-lb/raw/master/curl/libcurl-7.61.1-1.0.cf.rhel7.x86_64.rpm \
  && yum -y install \
            openssl \
            which \
@@ -50,66 +48,35 @@ RUN set -x \
  && rm -f marathon-lb-$MARATHON_LB_VERSION.tar.gz \
  && mv -f marathon-lb-$MARATHON_LB_VERSION marathon-lb \
  && rm -rf marathon-lb/{.coveragerc,.dockerignore,.gitignore,Dockerfile,build.bash,hooks,requirements-dev.txt,scripts,tests} \
- && buildEss=' \
-     apr \
-     apr-util \
-     avahi-libs \
-     boost-date-time \
-     boost-system \
-     boost-thread \
-     bzip2 \
-     cpp \
-     dwz \
-     dyninst \
-     efivar-libs \
-     emacs-filesystem \
-     file \
-     fipscheck \
-     fipscheck-lib \
-     gdb \
-     gettext-common-devel \
-     gettext-libs \
-     glibc-devel \
-     glibc-headers \
-     gnutls \
-     kernel-debug-devel \
-     kernel-headers \
-     less \
-     libcroco \
-     libdwarf \
-     libedit \
-     libgfortran \
-     libgnome-keyring \
-     libgomp \
-     libmodman \
-     libmpc \
-     libproxy \
-     libquadmath \
-     libstdc++-devel \
-     libunistring \
-     m4 \
-     mokutil \
-     mpfr \
-     neon \
-     nettle \
-     openssh \
-     openssh-clients \
-     pakchois \
-     perl-Data-Dumper \
-     perl-Error \
-     perl-TermReadKey \
-     perl-Test-Harness \
-     perl-Thread-Queue \
-     perl-XML-Parser \
-     perl-srpm-macros \
-     rsync \
-     subversion-libs \
-     systemd-sysv \
-     systemtap-client \
-     systemtap-runtime \
-     trousers \
-     unzip \
-     zip \
+ && curl -k -L -R -o marathon-lb/run https://github.com/ncwuping/marathon-lb/raw/master/run \
+ && devTools=' \
+     autoconf \
+     automake \
+     bison \
+     byacc \
+     cscope \
+     ctags \
+     diffstat \
+     doxygen \
+     elfutils \
+     flex \
+     gcc \
+     gcc-c++ \
+     gcc-gfortran \
+     gettext \
+     git \
+     indent \
+     intltool \
+     libtool \
+     patch \
+     patchutils \
+     rcs \
+     redhat-rpm-config \
+     rpm-build \
+     rpm-sign \
+     subversion \
+     swig \
+     systemtap \
  ' \
  && buildDeps=' \
      glibc-static \
@@ -134,10 +101,10 @@ RUN set -x \
      readline-devel \
      zlib-devel \
  ' \
- && yum groups mark convert \
- && yum -y groupinstall "Development Tools" \
- && yum -y install $buildDeps \
- && yum -y localinstall /tmp/libcurl-devel-7.61.1-1.0.cf.rhel7.x86_64.rpm \
+ && yum -y install \
+           $devTools \
+           $buildDeps \
+           https://github.com/ncwuping/marathon-lb/raw/master/curl/libcurl-devel-7.61.1-1.0.cf.rhel7.x86_64.rpm \
  && yum clean all \
  && rm -rf /tmp/* \
  && curl -L -R -O http://smarden.org/runit/runit-$RUN_IT_VERSION.tar.gz \
@@ -208,10 +175,7 @@ RUN set -x \
  && cp -f /usr/src/lua-$LUA_VERSION/src/liblua.so /usr/lib64/ \
  && make clean -C /usr/src/lua-$LUA_VERSION \
  && rm -rf /usr/src/lua-$LUA_VERSION \
- && yum -y remove libssh2-devel libcurl-devel \
- && yum -y remove $buildDeps \
- && yum -y groupremove "Development Tools" \
- && yum -y remove $buildEss \
+ && yum -y autoremove libcurl-devel $buildDeps $devTools \
 # Purge of python3-dev will delete python3 also
  && yum -y install python36 sysvinit-tools
 
