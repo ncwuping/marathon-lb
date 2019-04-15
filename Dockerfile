@@ -179,8 +179,6 @@ RUN set -x \
 # Purge of python3-dev will delete python3 also
  && yum -y install python36 sysvinit-tools
 
-COPY run /marathon-lb/
-
 WORKDIR /marathon-lb
 
 ENTRYPOINT [ "tini", "-g", "--", "/marathon-lb/run" ]
