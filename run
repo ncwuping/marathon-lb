@@ -32,7 +32,7 @@ do
             HAPROXY_HEAD_LBS="${HAPROXY_HEAD_LBS:-}${envvar_value}"
         fi
     fi
-done < <(env)
+done < <(env|grep -e "^HAPROXY_HEAD_LB_[[:digit:]]\+=.*"|sort)
 export HAPROXY_HEAD="${HAPROXY_HEAD_GLOBAL}${HAPROXY_HEAD_DEFAULT}${HAPROXY_HEAD_LISTEN_STAT}${HAPROXY_HEAD_LISTEN_STAT_ACL}${HAPROXY_HEAD_LBS:-}"
 
 # Custom syslog socket for marathon-lb.py logging
