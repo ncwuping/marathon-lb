@@ -1,16 +1,16 @@
 # vim:set ft=dockerfile:
-FROM centos:latest
+FROM centos:7
 MAINTAINER Wu Ping <wuping@hotmail.com>
 
-LABEL LAST_MODIFIED=20190415
+LABEL LAST_MODIFIED=20200225
 
 # runtime dependencies
 RUN yum -y clean all && yum makecache fast && yum -y update \
  && yum -y install \
            epel-release \
  && yum -y update \
-           https://github.com/ncwuping/marathon-lb/raw/master/curl/curl-7.61.1-1.0.cf.rhel7.x86_64.rpm \
-           https://github.com/ncwuping/marathon-lb/raw/master/curl/libcurl-7.61.1-1.0.cf.rhel7.x86_64.rpm \
+           https://github.com/ncwuping/marathon-lb/raw/master/curl/curl-7.65.3-4.0.cf.rhel7.x86_64.rpm \
+           https://github.com/ncwuping/marathon-lb/raw/master/curl/libcurl-7.65.3-4.0.cf.rhel7.x86_64.rpm \
  && yum -y install \
            openssl \
            which \
@@ -34,10 +34,10 @@ RUN set -x \
  && chmod +x /usr/bin/tini \
  && tini -- true
 
-ENV HAPROXY_MAJOR=1.8 \
-    HAPROXY_VERSION=1.8.20 \
-    HAPROXY_MD5=abf9b7b1aa84e0839501e006fc20d7fd \
-    MARATHON_LB_VERSION=1.12.3 \
+ENV HAPROXY_MAJOR=2.0 \
+    HAPROXY_VERSION=2.0.13 \
+    HAPROXY_MD5=fc1bab5f63ff1f057ec3e86b8447e69e \
+    MARATHON_LB_VERSION=1.14.2 \
     RUN_IT_VERSION=2.1.2 \
     LUA_MAJOR=5.3 \
     LUA_VERSION=5.3.5
@@ -104,7 +104,7 @@ RUN set -x \
  && yum -y install \
            $devTools \
            $buildDeps \
-           https://github.com/ncwuping/marathon-lb/raw/master/curl/libcurl-devel-7.61.1-1.0.cf.rhel7.x86_64.rpm \
+           https://github.com/ncwuping/marathon-lb/raw/master/curl/libcurl-devel-7.65.3-4.0.cf.rhel7.x86_64.rpm \
  && yum clean all \
  && rm -rf /tmp/* \
  && curl -L -R -O http://smarden.org/runit/runit-$RUN_IT_VERSION.tar.gz \
