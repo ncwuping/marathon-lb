@@ -147,7 +147,7 @@ RUN set -x \
  && tar zxf haproxy.tar.gz -C /usr/src/haproxy --strip-components=1 \
  && rm -f haproxy.tar.gz \
  && make -C /usr/src/haproxy \
-     TARGET=linux2628 \
+     TARGET=linux-glibc \
      ARCH=x86_64 \
      USE_LUA=1 \
      LUA_INC=/usr/include/lua5.3/ \
