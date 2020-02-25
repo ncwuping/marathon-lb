@@ -167,7 +167,7 @@ RUN set -x \
 # a local package even if the system package is up-to-date as the system package
 # will probably be uninstalled with the build dependencies.
  && curl -k -L -R -O https://bootstrap.pypa.io/get-pip.py \
- && python36 get-pip.py \
+ && python3 get-pip.py \
  && rm -f get-pip.py \
  && export PYCURL_SSL_LIBRARY=openssl \
  && pip3 install --no-cache --upgrade --force-reinstall -r /marathon-lb/requirements.txt \
