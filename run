@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ln -sf python36 /usr/bin/python3
-
 LOG_PREFIX="$(pwd) $0"
 log() {
     logline="[$LOG_PREFIX] $1\n"
