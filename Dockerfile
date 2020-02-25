@@ -8,10 +8,11 @@ LABEL LAST_MODIFIED=20200225
 RUN yum -y clean all && yum makecache fast && yum -y update \
  && yum -y install \
            epel-release \
+           http://www.city-fan.org/ftp/contrib/yum-repo/city-fan.org-release-2-1.rhel7.noarch.rpm \
  && yum -y update \
            https://github.com/ncwuping/marathon-lb/raw/master/curl/curl-7.65.3-4.0.cf.rhel7.x86_64.rpm \
            https://github.com/ncwuping/marathon-lb/raw/master/curl/libcurl-7.65.3-4.0.cf.rhel7.x86_64.rpm \
- && yum -y install \
+ && yum -y install --enablerepo="city-fan*" \
            openssl \
            which \
            rsyslog \
