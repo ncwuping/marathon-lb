@@ -95,10 +95,10 @@ RUN set -x \
      python-rpm-macros \
      python-srpm-macros \
      python3-rpm-macros \
-     python36 \
-     python36-setuptools \
-     python36-libs \
-     python36-devel \
+     python3 \
+     python3-setuptools \
+     python3-libs \
+     python3-devel \
      readline-devel \
      zlib-devel \
  ' \
@@ -178,7 +178,7 @@ RUN set -x \
  && rm -rf /usr/src/lua-$LUA_VERSION \
  && yum -y autoremove libcurl-devel $buildDeps $devTools \
 # Purge of python3-dev will delete python3 also
- && yum -y install python36 sysvinit-tools
+ && yum -y install python3 sysvinit-tools
 
 WORKDIR /marathon-lb
 
