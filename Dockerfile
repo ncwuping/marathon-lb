@@ -102,7 +102,7 @@ RUN set -x \
      readline-devel \
      zlib-devel \
  ' \
- && yum -y install \
+ && yum -y install --enablerepo="city-fan*" \
            $devTools \
            $buildDeps \
            https://github.com/ncwuping/marathon-lb/raw/master/curl/libcurl-devel-7.65.3-4.0.cf.rhel7.x86_64.rpm \
