@@ -132,7 +132,7 @@ RUN set -x \
       echo '#!/usr/bin/env bash'; \
       echo ''; \
       echo 'sed -i '"'"'/^$(LUA_A)/{n;n;n;/.*/a\$(LUA_SO): $(CORE_O) $(LIB_O)\n\t$(CC) -o $@ -shared $? -ldl -lm\n'; \
-      echo '}'"'"' /usr/src/lua-5.3.5/src/Makefile'; \
+      echo '}'"'"' /usr/src/lua-'"$LUA_VERSION"'/src/Makefile'; \
     } > /tmp/chgluamak.sh \
  && chmod +x /tmp/chgluamak.sh \
  && /tmp/chgluamak.sh \
