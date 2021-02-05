@@ -18,7 +18,7 @@ RUN yum -y clean all && yum makecache fast && yum -y update \
            rsyslog \
            socat
 
-ENV TINI_VERSION=v0.18.0 \
+ENV TINI_VERSION=v0.19.0 \
     TINI_GPG_KEY=595E85A6B1B4779EA4DAAEC70B588DFF0527A9B7
 
 RUN set -x \
@@ -36,12 +36,12 @@ RUN set -x \
  && tini -- true
 
 ENV HAPROXY_MAJOR=2.0 \
-    HAPROXY_VERSION=2.0.13 \
-    HAPROXY_MD5=fc1bab5f63ff1f057ec3e86b8447e69e \
+    HAPROXY_VERSION=2.0.20 \
+    HAPROXY_MD5=9f85ea9e6fd7d49a11cdc4c6269e10dd \
     MARATHON_LB_VERSION=1.14.2 \
     RUN_IT_VERSION=2.1.2 \
     LUA_MAJOR=5.3 \
-    LUA_VERSION=5.3.5
+    LUA_VERSION=5.3.6
 
 RUN set -x \
  && curl -k -L -R -o marathon-lb-$MARATHON_LB_VERSION.tar.gz https://github.com/mesosphere/marathon-lb/archive/v$MARATHON_LB_VERSION.tar.gz \
